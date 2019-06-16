@@ -137,8 +137,7 @@ public class MatchThree : MonoBehaviour {
     // check each jewel for match, starting at the top left and going right and then down
     public void CheckForMatch()
     {
-        //TODO: switch direction from bottom to top
-        for(int i = 0;i<xSize;i++)
+        for (int i = xSize; i-- > 0;)
         {
             for (int j = 0; j < ySize; j++)
             {
@@ -147,38 +146,39 @@ public class MatchThree : MonoBehaviour {
 
                     Color color = jewels[i, j].GetComponent<Image>().color;
 
-                    bool matchedVertical = false;
+                    bool matchedHorizontal = false;
                     if(j != 0 && j != ySize -1){
                         Color colorUp = jewels[i, j + 1].GetComponent<Image>().color;
                         Color colorDown = jewels[i, j - 1].GetComponent<Image>().color;
-                        matchedVertical = CompareColors(color, colorUp, colorDown);
+                        matchedHorizontal = CompareColors(color, colorUp, colorDown);
                     }
 
-                    bool matchedHorizontal = false;
+                    bool matchedVertical = false;
                     if (i != 0 && i != xSize - 1){                       
                         Color colorLeft = jewels[i - 1, j].GetComponent<Image>().color;
                         Color colorRight = jewels[i + 1, j].GetComponent<Image>().color;
-                        matchedHorizontal = CompareColors(color, colorLeft, colorRight);
+                        matchedVertical = CompareColors(color, colorLeft, colorRight);
                     }
 
                     //TODO: check for vertical and horizontal matches (star)
                     if (matchedHorizontal)
                     {
-                        matchedJewels.Add(jewels[i - 1, j]);
+                        matchedJewels.Add(jewels[i, j - 1]);
                         matchedJewels.Add(jewels[i, j]);
-                        matchedJewels.Add(jewels[i + 1, j]);
-                        CheckExtraMatch(i,j,i+1,j);
+                        matchedJewels.Add(jewels[i, j + 1]);
+                        CheckExtraMatch(i, j, i, j + 1);
                         StartCoroutine(DestroyWait());
                         return;
                     }
-                    if (matchedVertical){
-                        matchedJewels.Add(jewels[i, j-1]);
+                    if (matchedVertical)
+                    {
+                        matchedJewels.Add(jewels[i - 1, j]);
                         matchedJewels.Add(jewels[i, j]);
-                        matchedJewels.Add(jewels[i, j+1]);
-                        CheckExtraMatch(i, j, i, j+1);
+                        matchedJewels.Add(jewels[i + 1, j]);
+                        CheckExtraMatch(i,j,i-1,j);
                         StartCoroutine(DestroyWait());
                         return;
-                    }                    
+                    }               
                 }
             }
         }
@@ -200,7 +200,7 @@ public class MatchThree : MonoBehaviour {
         int x3 = x2 + dX;
         int y3 = y2 + dY;
         
-        if (x3 != xSize && y3 != ySize) //make sure we aren't going past the edge of the grid
+        if (x3 >= 0 && y3 != ySize) //make sure we aren't going past the edge of the grid
         {
             Color c2 = jewels[x2, y2].GetComponent<Image>().color;
             Color c3 = jewels[x3, y3].GetComponent<Image>().color;
@@ -216,7 +216,6 @@ public class MatchThree : MonoBehaviour {
     // Visualize a match three and begin cascade process
     IEnumerator DestroyWait()
     {
-        Debug.Log("DestroyWait");
         isAnimating = true;
         yield return new WaitForSeconds(animationTime * 3);
         //TODO: make matched jewels blink
@@ -273,10 +272,6 @@ public class MatchThree : MonoBehaviour {
         Color color2 = image2.color;
         Interaction interaction1 = jewel1.GetComponent<Interaction>();
         Interaction interaction2 = jewel2.GetComponent<Interaction>();
-        int jewel1x = interaction1.x;
-        int jewel1y = interaction1.y;
-        int jewel2x = interaction2.x;
-        int jewel2y = interaction2.y;
         image1.color = Color.white; //TODO: visualize swap as movement instead of white color change
         image2.color = Color.white;
 
@@ -285,10 +280,6 @@ public class MatchThree : MonoBehaviour {
         audio.Play();
         image1.color = color2;
         image2.color = color1;
-        interaction1.x = jewel2x; //TODO: 0 BUG sometimes after object is swapped without match, interaction.x,y isn't updated correctly
-        interaction1.y = jewel2y;
-        interaction2.x = jewel1x;
-        interaction2.y = jewel1y;
         selected1 = null;
         selected2 = null;
 
@@ -296,7 +287,12 @@ public class MatchThree : MonoBehaviour {
         isAnimating = false;
         CheckForMatch();
     }
-
+    //play sound when jewel selected
+    public void ClickSound()
+    {
+        audio.clip = taps[Random.Range(0, taps.Length)];
+        audio.Play();
+    }
 
     //exit game
     private void Quit()

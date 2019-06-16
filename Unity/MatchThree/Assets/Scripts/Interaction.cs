@@ -24,7 +24,7 @@ public class Interaction : MonoBehaviour {
         {           
             if (mainScript.selected1 == null)
             {
-                Debug.Log("selected1");
+                mainScript.ClickSound();
                 mainScript.selected1 = this.gameObject;
             }
             else if(!GameObject.ReferenceEquals(mainScript.selected1,this.gameObject))
@@ -35,7 +35,7 @@ public class Interaction : MonoBehaviour {
                     || other.x == x && other.y == y - 1 || other.x == x && other.y == y + 1
                     )
                 {
-                    Debug.Log("selected2");
+                    mainScript.ClickSound();
                     mainScript.selected2 = this.gameObject;
                 }
                 else //if something else was selected, we reset the selection
